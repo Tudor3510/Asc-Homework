@@ -55,7 +55,9 @@ preparingTextSmallLetter:
     jmp preparingTextLoop
     
 preparingTextLoop:
-    cmpl $length, currPosition      #here we can exit from
+    mov $0, %eax
+    movl length, %eax
+    cmpl %eax, currPosition      #here we can exit from
     jge processingText              #our loop when we are at the end (when we reach number 100)
     
     mov $textToRead, %edi
