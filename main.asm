@@ -1,7 +1,9 @@
 .data
+    length: .long 100
     textToRead: .space 102
-    test1: .long 4
-    test2: .space 4
+    currPosition: .space 4
+    
+    letterToProcess: .space 1
 .text
 
 .globl main
@@ -15,11 +17,24 @@ readText:
     mov $102, %edx
     int $0x80
 
-testulet:
-    mov $test1, %eax
-    addl $1, test1
-    mov %eax, test2
+preparingText:
+    movl $0, currPosition
     
+    cmpl $length, currPosition   #here we can exit from
+    jge processingTextLoop       #our loop when we are at the end
+    
+    mov $textToRead, %edi
+    movl currPosition, %ecx
+    movl $0, %edx
+    movb (%edi, %ecx, 1), %dl
+    movb %dl, letterToProcess
+    
+   # cmpl letterToProcess
+    
+
+processingTextLoop:
+    
+
 
 showText:
     mov $4, %eax
