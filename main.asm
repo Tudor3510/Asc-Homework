@@ -116,20 +116,20 @@ processingTextLoop:
     
     movl $0, %eax
     movb thirdLetter, %al
-    movl %eax, %ecx
+    movl %eax, %ecx                     #thirdLetter * 16^0 in %ecx
     
     movb secondLetter, %al
     movl $16, %ebx
     imul %ebx
-    addl %eax, %ecx
+    addl %eax, %ecx                     #+secondLetter * 16^1 in %ecx
     
     mov $0, %eax
     movb firstLetter,%al
     movl $256, %ebx
     imul %ebx
-    addl %eax, %ecx
+    addl %eax, %ecx                     #+thirdLetter * 16^2 in %ecx
     
-    movl %ecx, calculatedNumber
+    movl %ecx, calculatedNumber         #calculatedNumber will now have our number
 
 finish:
     mov $1, %eax
