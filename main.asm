@@ -30,7 +30,7 @@ preparingText:
     jmp preparingTextLoop
     
 preparingTextNumber:
-    subb $47, firstLetter
+    subb $47, firstLetter       # 0 will be 1, 1 will be 2, ........
     
     movb firstLetter, %dl
     movb %dl, (%edi, %ecx, 1)
@@ -38,12 +38,19 @@ preparingTextNumber:
     jmp preparingTextLoop
     
 preparingTextBigLetter:
+    subb $54, firstLetter       # A will be 11, B will be 12, ........
     
+    movb firstLetter, %dl
+    movb %dl, (%edi, %ecx, 1)
 
     jmp preparingTextLoop
 
 preparingTextSmallLetter:
+    subb $86, firstLetter       # a will be 11, b will be 12, ........
 
+
+    movb firstLetter, %dl
+    movb %dl, (%edi, %ecx, 1)
 
     jmp preparingTextLoop
     
@@ -67,12 +74,12 @@ preparingTextLoop:
     mov $0, %eax
     movb whereBigLetterEnds, %al
     cmpb %al, firstLetter
-    jle preparingTextNumber
+    jle preparingTextBigLetter
     
     mov $0, %eax
     movb whereSmallLetterEnds, %al
     cmpb %al, firstLetter
-    jle preparingTextNumber
+    jle preparingTextSmallLetter
     
     
     
