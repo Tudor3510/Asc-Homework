@@ -1,5 +1,5 @@
 .data
-    length: .long 100
+    length: .long 7
     textToRead: .space 102
     currPosition: .space 4
     
@@ -56,7 +56,7 @@ preparingTextSmallLetter:
     
 preparingTextLoop:
     cmpl $length, currPosition      #here we can exit from
-    jge processingTextLoop          #our loop when we are at the end (when we reach number 100)
+    jge processingText              #our loop when we are at the end (when we reach number 100)
     
     mov $textToRead, %edi
     movl currPosition, %ecx
@@ -81,12 +81,9 @@ preparingTextLoop:
     cmpb %al, firstLetter
     jle preparingTextSmallLetter
     
-    
-    
-   # cmpl letterToProcess
-    
 
-processingTextLoop:
+
+processingText:
     
 
 

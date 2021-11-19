@@ -1,2 +1,3 @@
-sudo pacman -Sy gcc make binutils qt5-base xclip && git config --global user.name "Tudor3510" && git config --global user.email "tudorcioc@gmail.com" && ssh-keygen
+sudo pacman -Sy gcc make binutils qt5-base xclip gdb && git config --global user.name "Tudor3510"
+git config --global user.email "tudorcioc@gmail.com" && ssh-keygen
 cat ~/.ssh/id_rsa.pub | xclip
