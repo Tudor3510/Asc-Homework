@@ -3,7 +3,9 @@
     textToRead: .space 102
     currPosition: .space 4
     
-    whereNumberEnds: .byte 57
+    whereNumberEnds: .byte '9'
+    whereBigLetterEnds: .byte 'Z'
+    whereSmallLetterEnds: .byte 'z'
     
     firstLetter: .space 1
     secondLetter: .space 1
@@ -30,6 +32,21 @@ preparingText:
 preparingTextNumber:
     subb $47, firstLetter
     
+    movb firstLetter, %dl
+    movb %dl, (%edi, %ecx, 1)
+    
+    jmp preparingTextLoop
+    
+preparingTextBigLetter:
+    
+
+    jmp preparingTextLoop
+
+preparingTextSmallLetter:
+
+
+    jmp preparingTextLoop
+    
 preparingTextLoop:
     cmpl $length, currPosition      #here we can exit from
     jge processingTextLoop          #our loop when we are at the end (when we reach number 100)
@@ -42,9 +59,20 @@ preparingTextLoop:
     
     incl currPosition
     
-    cmpb $whereNumberEnds, firstLetter
+    mov $0, %eax
+    movb whereNumberEnds, %al
+    cmpb %al, firstLetter
     jle preparingTextNumber
     
+    mov $0, %eax
+    movb whereBigLetterEnds, %al
+    cmpb %al, firstLetter
+    jle preparingTextNumber
+    
+    mov $0, %eax
+    movb whereSmallLetterEnds, %al
+    cmpb %al, firstLetter
+    jle preparingTextNumber
     
     
     
