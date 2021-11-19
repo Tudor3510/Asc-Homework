@@ -16,7 +16,7 @@
 
 .globl main
 main:
-    movl %esp, %ebp #for correct debugging
+    movl %esp, %ebp                     #for correct debugging
     jmp readText
 
 readText:
@@ -32,7 +32,7 @@ preparingText:
     jmp preparingTextLoop
     
 preparingTextNumber:
-    subb $47, firstLetter       # 0 will be 1, 1 will be 2, ........
+    subb $47, firstLetter               # 0 will be 1, 1 will be 2, ........
     
     movb firstLetter, %dl
     movb %dl, (%edi, %ecx, 1)
@@ -40,7 +40,7 @@ preparingTextNumber:
     jmp preparingTextLoop
     
 preparingTextBigLetter:
-    subb $54, firstLetter       # A will be 11, B will be 12, ........
+    subb $54, firstLetter               # A will be 11, B will be 12, ........
     
     movb firstLetter, %dl
     movb %dl, (%edi, %ecx, 1)
@@ -48,7 +48,7 @@ preparingTextBigLetter:
     jmp preparingTextLoop
 
 preparingTextSmallLetter:
-    subb $86, firstLetter       # a will be 11, b will be 12, ........
+    subb $86, firstLetter               # a will be 11, b will be 12, ........
 
 
     movb firstLetter, %dl
@@ -58,16 +58,16 @@ preparingTextSmallLetter:
     
 preparingTextLoop:
     movl length, %eax
-    cmpl %eax, currPosition         #here we can exit from our loop when we
-    jge processingText              #are at the end (when we reach number 100)
+    cmpl %eax, currPosition             #here we can exit from our loop when we
+    jge processingText                  #are at the end (when we reach number 100)
     
     mov $textToRead, %edi
     movl currPosition, %ecx
     movl $0, %edx
-    movb (%edi, %ecx, 1), %dl       #the %edi and %ecx registers should remain unchanged when changing our numbers
+    movb (%edi, %ecx, 1), %dl           #the %edi and %ecx registers should remain unchanged when changing our numbers
     movb %dl, firstLetter
     
-    incl currPosition               #contorul nostru creste
+    incl currPosition                   #contorul nostru creste
     
     mov $0, %eax
     movb whereNumberEnds, %al
@@ -92,33 +92,44 @@ processingText:
     
 processingTextLoop:
     movl length, %eax
-    cmpl %eax, currPosition         #here we can exit from our loop when we
-    jge finish                      #are at the end (when we reach number 99)(we should have a number bigger than 99)
+    cmpl %eax, currPosition             #here we can exit from our loop when we
+    jge finish                          #are at the end (when we reach number 99)(we should have a number bigger than 99)
     
     mov $textToRead, %edi
     movl currPosition, %ecx
     movl $0, %edx
     movb (%edi, %ecx, 1), %dl
-    movb %dl, thirdLetter           #getting the last number from a pair which is made from 3 hexa numbers
-    subl thirdLetter
+    movb %dl, thirdLetter               #getting the last number from a pair which is made from 3 hexa numbers
+    decb thirdLetter
     
-    subl %ecx
+    decl %ecx
     movb (%edi, %ecx, 1), %dl
-    movb %dl, secondLetter           #getting the second number from a pair which is made from 3 hexa numbers
-    subb secondLetter
+    movb %dl, secondLetter              #getting the second number from a pair which is made from 3 hexa numbers
+    decb secondLetter
     
-    subl %ecx
+    decl %ecx
     movb (%edi, %ecx, 1), %dl
-    movb %dl, firstLetter           #getting the first number from a pair which is made from 3 hexa numbers
-    subb firstLetter
-
-
-showText:
-    mov $4, %eax
-    mov $1, %ebx
-    mov $textToRead, %ecx
-    mov $102, %edx
-    int $0x80
+    movb %dl, firstLetter               #getting the first number from a pair which is made from 3 hexa numbers
+    decb firstLetter
+    
+    incl currPosition                   #contorul nostru creste
+    
+    movl $0, %eax
+    movb thirdLetter, %al
+    movl %eax, %ecx
+    
+    movb secondLetter, %al
+    movl $16, %ebx
+    imul %ebx
+    addl %eax, %ecx
+    
+    mov $0, %eax
+    movb firstLetter,%al
+    movl $256, %ebx
+    imul %ebx
+    addl %eax, %ecx
+    
+    movl %ecx, calculatedNumber
 
 finish:
     mov $1, %eax
