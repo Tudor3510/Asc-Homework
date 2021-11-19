@@ -64,7 +64,7 @@ preparingTextLoop:
     movb (%edi, %ecx, 1), %dl       #the %edi and %ecx registers should remain unchanged when changing our numbers
     movb %dl, firstLetter
     
-    incl currPosition
+    incl currPosition               #contorul nostru creste
     
     mov $0, %eax
     movb whereNumberEnds, %al
