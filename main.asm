@@ -12,6 +12,7 @@
     thirdLetter: .space 1
     
     calculatedNumber: .space 4
+    smallCalculatedNumber: .space 4
 .text
 
 .globl main
@@ -122,6 +123,8 @@ processingTextLoop:
     movl $16, %ebx
     imul %ebx
     addl %eax, %ecx                     #+secondLetter * 16^1 in %ecx
+    
+    movl %ecx, smallCalculatedNumber    #smallCalculatedNumber will now have the number made using the last 2 hexa numbers
     
     mov $0, %eax
     movb firstLetter,%al
