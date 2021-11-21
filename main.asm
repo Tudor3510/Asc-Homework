@@ -36,7 +36,7 @@
     printfTextPositive: .asciz "%d "
 .text
 
-.globl main
+.global main
 main:
     movl %esp, %ebp                     #for correct debugging
     jmp readText
