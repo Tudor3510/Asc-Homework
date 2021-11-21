@@ -36,6 +36,7 @@
     printfTextPositive: .asciz "%d "
     printfTextNegative: .asciz "-%d "
     variableToPrint: .asciz "  "
+    newlineToPrint: .asciz "\n"
 .text
 
 .global main
@@ -93,11 +94,11 @@ preparingTextLoop:
     
     incl currPosition                   #contorul nostru creste
     
-    movl $0, %eax
+    movl $0, %eax                       #exit if we find 0 in our textToRead
     cmpb %al, firstLetter
     je processingText
     
-    movl $0, %eax
+    movl $0, %eax                       #exit if we find newline in our textToRead
     movb $10, %al
     cmpb %al, firstLetter
     je processingText
@@ -279,6 +280,12 @@ processingTextLoop:
     jge showEncoding
 
 finish:
+    mov $4, %eax
+    mov $1, %ebx
+    mov $newlineToPrint, %ecx
+    mov $1, %edx
+    int $0x80
+
     mov $1, %eax
     mov $0, %ebx
     int $0x80
