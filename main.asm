@@ -1,5 +1,5 @@
 .data
-    length: .long 15
+    length: .long 3
     textToRead: .space 102
     currPosition: .space 4
     
@@ -34,6 +34,7 @@
     divNumber: .long 3076
     
     printfTextPositive: .asciz "%d "
+    printfTextNegative: .asciz "-%d "
 .text
 
 .global main
@@ -159,14 +160,29 @@ showDiv:
     
 showPositiveNumber:
     pushl smallCalculatedNumber
-    push $printfTextPositive
-    
+    pushl $printfTextPositive
     call printf
+    popl %edx
+    popl %edx
+    
+    pushl $0
+    call fflush
+    popl %edx
     
 
     jmp processingTextLoop
     
 showNegativeNumber:
+    pushl smallCalculatedNumber
+    pushl $printfTextNegative
+    call printf
+    popl %edx
+    popl %edx
+    
+    pushl $0
+    call fflush
+    popl %edx
+
     jmp processingTextLoop
     
 showEncoding:
