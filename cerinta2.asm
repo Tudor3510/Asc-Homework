@@ -1,7 +1,7 @@
 .data
     length: .long 100
     textToRead: .space 102
-    variables: .space 500
+    variables: .space 505
 
     spaceString: .asciz " "
     
@@ -12,6 +12,15 @@
     subText: .asciz "sub"
     mulText: .asciz "mul"
     divText: .asciz "div"
+    
+    variableAsciiCode: .space 4
+    numberToPutOnVariable: .space 4
+    
+    firstCalcNumber: .space 4
+    secondCalcNumber: .space 4
+    
+    toAddOnStack: .space 505
+    currentIndex: .space 0
 
 .text
 
@@ -40,20 +49,70 @@ processingText:
     popl %ebx
     
     jmp processingTextLoop
-    
+
+
 handleLet:
+    popl %ecx
+    
+    mov $0, %eax
+    call atoi
+    movl %eax, numberToPutOnVariable
+    popl %ecx
+    
+    mov $0, %eax
+    popl %ecx
+    movb (%ecx), %al
+    movl %eax, variableAsciiCode
+    
+    movl variableAsciiCode, %ecx
+    mov $variables, %edi
+    
+    movl numberToPutOnVariable, %eax
+    movl %eax, (%edi, %ecx, 4)
+    
+    
+    
     jmp nextStrtok
 
-handleAdd:
+
+firstHandleAdd:
+    popl %ecx
+    
+    jmp secondHandleAdd
+    
+secondHandleAdd:
+    
+    jmp thirdHandleAdd
+    
+thirdHandleAdd:
+
     jmp nextStrtok
+
+
 
 handleSub:
+    popl %ecx
+    
+    
+    
+    
+    
     jmp nextStrtok
 
 handleMul:
+    popl %ecx
+    
+    
+    
+    
+    
     jmp nextStrtok
 
 handleDiv:
+    popl %ecx
+    
+    
+    
     jmp nextStrtok
 
 processingTextLoop:
@@ -92,7 +151,8 @@ processingTextLoop:
     cmp %eax, nullPtr           #here we compare to the "mul" string and enter handleMul if the string was found
     je handleDiv
     
-    popl %ecx
+   # popl %ecx                   #we should not pop the string here bc if it was not found it should remain on the stack
+    
     jmp nextStrtok
     
     
