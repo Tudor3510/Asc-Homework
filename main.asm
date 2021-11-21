@@ -7,12 +7,16 @@
     whereBigLetterEnds: .byte 'Z'
     whereSmallLetterEnds: .byte 'z'
     
+    wherePositiveEnds: .long 2303
+    whereNegativeEnds: .long 2559
+    whereEncodingEnds: .long 2815
+    
     firstLetter: .space 1
     secondLetter: .space 1
     thirdLetter: .space 1
     
-    calculatedNumber: .space 4
-    smallCalculatedNumber: .space 4
+    calculatedNumber: .long 0
+    smallCalculatedNumber: .long 4
     
     letText: .asciz "let "
     letNumber: .long 3072
@@ -28,6 +32,8 @@
      
     divText: .asciz "div "
     divNumber: .long 3076
+    
+    printfTextPositive: .asciz "%d "
 .text
 
 .globl main
@@ -151,6 +157,21 @@ showDiv:
     
     jmp processingTextLoop
     
+showPositiveNumber:
+    pushl smallCalculatedNumber
+    push $printfTextPositive
+    
+    call printf
+    
+
+    jmp processingTextLoop
+    
+showNegativeNumber:
+    jmp processingTextLoop
+    
+showEncoding:
+    jmp processingTextLoop
+    
 processingTextLoop:
     movl length, %eax
     cmpl %eax, currPosition             #here we can exit from our loop when we
@@ -173,7 +194,7 @@ processingTextLoop:
     movb %dl, firstLetter               #getting the first number from a pair which is made from 3 hexa numbers
     decb firstLetter
     
-    add $3, currPosition                   #contorul nostru creste
+    addl $3, currPosition                   #contorul nostru creste
     
     movl $0, %eax
     movb thirdLetter, %al
@@ -208,6 +229,18 @@ processingTextLoop:
     
     cmpl %ecx, divNumber
     je showDiv
+    
+    cmpl %ecx, divNumber
+    je showDiv
+    
+    cmpl %ecx, wherePositiveEnds
+    jge showPositiveNumber
+    
+    cmpl %ecx, whereNegativeEnds
+    jle showNegativeNumber
+    
+    cmpl %ecx, whereEncodingEnds
+    jle showEncoding
 
 finish:
     mov $1, %eax
