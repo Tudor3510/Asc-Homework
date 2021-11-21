@@ -177,7 +177,7 @@ showPositiveNumber:
     popl %edx
     
     pushl $0
-    call fflush
+    call fflush                                 #dont forget to call fflush when using printf
     popl %edx
     
 
@@ -191,7 +191,7 @@ showNegativeNumber:
     popl %edx
     
     pushl $0
-    call fflush
+    call fflush                                 #dont forget to call fflush when using printf
     popl %edx
 
     jmp processingTextLoop
@@ -282,7 +282,7 @@ processingTextLoop:
 finish:
     mov $4, %eax
     mov $1, %ebx
-    mov $newlineToPrint, %ecx
+    mov $newlineToPrint, %ecx           #here we print the newline
     mov $1, %edx
     int $0x80
 

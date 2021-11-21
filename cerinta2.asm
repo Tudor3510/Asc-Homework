@@ -6,6 +6,12 @@
     spaceString: .asciz " "
     
     nullPtr: .long 0
+    
+    letText: .asciz "let"
+    addText: .asciz "add"
+    subText: .asciz "sub"
+    mulText: .asciz "mul"
+    divText: .asciz "div"
 
 .text
 
@@ -33,31 +39,73 @@ processingText:
     popl %ebx
     popl %ebx
     
-    jmp processingTextLoop    
+    jmp processingTextLoop
+    
+handleLet:
+    jmp nextStrtok
+
+handleAdd:
+    jmp nextStrtok
+
+handleSub:
+    jmp nextStrtok
+
+handleMul:
+    jmp nextStrtok
+
+handleDiv:
+    jmp nextStrtok
 
 processingTextLoop:
     cmp %eax, nullPtr
     je finish
     
-    mov %eax, %ecx
-    mov $4, %eax
-    mov $1, %ebx
-    mov $3, %edx
-    int $0x80
+    pushl %eax                  #pushing the current string returned by the strtok in order to use it with strcmp
     
-    mov $4, %eax
-    mov $1, %ebx
-    mov $spaceString, %ecx
-    mov $1, %edx
-    int $0x80
+    pushl $letText
+    call strcmp
+    popl %ecx
+    cmp %eax, nullPtr           #here we compare to the "let" string and enter handleLet if the string was found
+    je handleLet
     
+    pushl $addText
+    call strcmp
+    popl %ecx
+    cmp %eax, nullPtr           #here we compare to the "add" string and enter handleAdd if the string was found
+    je handleAdd
+    
+    pushl $subText
+    call strcmp
+    popl %ecx
+    cmp %eax, nullPtr           #here we compare to the "sub" string and enter handleSub if the string was found
+    je handleSub
+    
+    pushl $mulText
+    call strcmp
+    popl %ecx
+    cmp %eax, nullPtr           #here we compare to the "mul" string and enter handleMul if the string was found
+    je handleMul
+    
+    pushl $divText
+    call strcmp
+    popl %ecx
+    cmp %eax, nullPtr           #here we compare to the "mul" string and enter handleMul if the string was found
+    je handleDiv
+    
+    popl %ecx
+    jmp nextStrtok
+    
+    
+nextStrtok:
+
     pushl $spaceString
     pushl nullPtr
     
+    mov $0, %eax    
     call strtok
     
-    popl %ecx
-    popl %ecx
+    popl %ecx                   #!!!!! folosim ecx pentru a goli stiva
+    popl %ecx                   #!!!!! folosim ecx pentru a goli stiva
     
     jmp processingTextLoop
     
