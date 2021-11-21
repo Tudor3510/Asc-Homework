@@ -1,9 +1,13 @@
+positiveNumbers:    2048 -> 2303
+                    (0)     (255)
+               
+negativeNumbers:    2304 -> 2559
+                    (0)    (-255)
+                    
+variabila:          2560 -> 2815
+
 let:                3072
 add:                3073
 sub:                3074
 mul:                3075
 div:                3076
-positiveNumbers:    2048 -> 2303
-                    (0)     (255)
-negativeNumbers:    2559 -> 2304
-                    (-255)  (0)

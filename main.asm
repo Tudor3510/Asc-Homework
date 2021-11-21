@@ -1,5 +1,5 @@
 .data
-    length: .long 7
+    length: .long 15
     textToRead: .space 102
     currPosition: .space 4
     
@@ -13,6 +13,21 @@
     
     calculatedNumber: .space 4
     smallCalculatedNumber: .space 4
+    
+    letText: .asciz "let "
+    letNumber: .long 3072
+    
+    addText: .asciz "add "
+    addNumber: .long 3073
+    
+    subText: .asciz "sub "
+    subNumber: .long 3074
+    
+    mulText: .asciz "mul "
+    mulNumber: .long 3075
+     
+    divText: .asciz "div "
+    divNumber: .long 3076
 .text
 
 .globl main
@@ -91,6 +106,51 @@ processingText:
     movl $2, currPosition
     jmp processingTextLoop
     
+showLet:
+    mov $4, %eax
+    mov $1, %ebx
+    mov $letText, %ecx
+    mov $4, %edx
+    int $0x80
+    
+    jmp processingTextLoop
+
+showAdd:
+    mov $4, %eax
+    mov $1, %ebx
+    mov $addText, %ecx
+    mov $4, %edx
+    int $0x80
+    
+    jmp processingTextLoop
+    
+showSub:
+    mov $4, %eax
+    mov $1, %ebx
+    mov $subText, %ecx
+    mov $4, %edx
+    int $0x80
+    
+    jmp processingTextLoop
+    
+showMul:
+    mov $4, %eax
+    mov $1, %ebx
+    mov $mulText, %ecx
+    mov $4, %edx
+    int $0x80
+    
+    jmp processingTextLoop
+    
+showDiv:
+    mov $4, %eax
+    mov $1, %ebx
+    mov $divText, %ecx
+    mov $4, %edx
+    int $0x80
+    
+    jmp processingTextLoop
+    
 processingTextLoop:
     movl length, %eax
     cmpl %eax, currPosition             #here we can exit from our loop when we
@@ -113,7 +173,7 @@ processingTextLoop:
     movb %dl, firstLetter               #getting the first number from a pair which is made from 3 hexa numbers
     decb firstLetter
     
-    incl currPosition                   #contorul nostru creste
+    add $3, currPosition                   #contorul nostru creste
     
     movl $0, %eax
     movb thirdLetter, %al
@@ -133,6 +193,21 @@ processingTextLoop:
     addl %eax, %ecx                     #+thirdLetter * 16^2 in %ecx
     
     movl %ecx, calculatedNumber         #calculatedNumber will now have our number
+    
+    cmpl %ecx, letNumber
+    je showLet
+    
+    cmpl %ecx, addNumber
+    je showAdd
+    
+    cmpl %ecx, subNumber
+    je showSub
+    
+    cmpl %ecx, mulNumber
+    je showMul
+    
+    cmpl %ecx, divNumber
+    je showDiv
 
 finish:
     mov $1, %eax
