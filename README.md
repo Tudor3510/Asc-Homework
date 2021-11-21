@@ -11,4 +11,4 @@ https://1drv.ms/u/s!AknsGZ1wFRqviGSjL4-ucGrbA-Hw?e=tyify6
 
 
 To compile your app:
-as --32 cerinta1.asm -o cerinta1.o && gcc -m32 cerinta1.o -o cerinta1
+as --32 ../cerinta1.asm -o cerinta1.o && gcc -m32 cerinta1.o -o cerinta1
