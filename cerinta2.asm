@@ -4,6 +4,7 @@
     variables: .space 505
 
     spaceString: .asciz " "
+    whereNumberEnds: .long 57
     
     nullPtr: .long 0
     
@@ -20,7 +21,7 @@
     secondCalcNumber: .space 4
     
     toAddOnStack: .space 505
-    currentIndex: .space 0
+    currentIndex: .long 0
 
 .text
 
@@ -34,7 +35,7 @@ main:
 readText:
     mov $3, %eax
     mov $0, %ebx
-    mov $textToRead, %ecx
+    mov $textToRead, %ecx                       #reading the text from the keyboard
     mov $102, %edx
     int $0x80
     jmp processingText
@@ -43,7 +44,7 @@ processingText:
     pushl $spaceString
     pushl $textToRead
     
-    call strtok
+    call strtok                                 #calling strtok for the first time
     
     popl %ebx
     popl %ebx
@@ -56,27 +57,45 @@ handleLet:
     
     mov $0, %eax
     call atoi
-    movl %eax, numberToPutOnVariable
+    movl %eax, numberToPutOnVariable            #converting the number to int in order to put it in the array
     popl %ecx
     
     mov $0, %eax
     popl %ecx
     movb (%ecx), %al
-    movl %eax, variableAsciiCode
+    movl %eax, variableAsciiCode                #converting the first number to ascii code in order to know where to put it in the array
     
     movl variableAsciiCode, %ecx
     mov $variables, %edi
     
-    movl numberToPutOnVariable, %eax
+    movl numberToPutOnVariable, %eax            #putting the desired number in the INT array
     movl %eax, (%edi, %ecx, 4)
-    
     
     
     jmp nextStrtok
 
 
+add_firstStackIsNumber:
+    
+    jmp secondHandleAdd
+    
+
 firstHandleAdd:
     popl %ecx
+    
+    mov $0, %eax
+    popl %edx
+    movb (%edx), %al
+    movl %eax, variableAsciiCode
+    
+    cmp %eax, whereNumberEnds                   #here we decide if we have a variable or a number
+    jge add_firstStackIsNumber
+    
+    movl variableAsciiCode, %ecx
+    mov $variables, %edi
+    
+    movl (%edi, %ecx, 4), %eax
+    movl %eax, firstCalcNumber                  #here we handle the variable
     
     jmp secondHandleAdd
     
@@ -90,30 +109,51 @@ thirdHandleAdd:
 
 
 
-handleSub:
+firstHandleSub:
     popl %ecx
     
+    jmp secondHandleSub
+    
+secondHandleSub:
+
+    jmp thirdHandleSub
+
+thirdHandleSub:
+    
+    jmp nextStrtok
     
     
+
+firstHandleMul:
+    popl %ecx
     
+    jmp secondHandleMul
+    
+secondHandleMul:
+
+    jmp thirdHandleMul
+
+thirdHandleMul:
     
     jmp nextStrtok
 
-handleMul:
+
+
+firstHandleDiv:
     popl %ecx
     
+    jmp secondHandleDiv
     
-    
-    
+secondHandleDiv:
+
+    jmp thirdHandleDiv
+
+thirdHandleDiv:
     
     jmp nextStrtok
 
-handleDiv:
-    popl %ecx
-    
-    
-    
-    jmp nextStrtok
+
+
 
 processingTextLoop:
     cmp %eax, nullPtr
@@ -131,25 +171,25 @@ processingTextLoop:
     call strcmp
     popl %ecx
     cmp %eax, nullPtr           #here we compare to the "add" string and enter handleAdd if the string was found
-    je handleAdd
+    je firstHandleAdd
     
     pushl $subText
     call strcmp
     popl %ecx
     cmp %eax, nullPtr           #here we compare to the "sub" string and enter handleSub if the string was found
-    je handleSub
+    je firstHandleSub
     
     pushl $mulText
     call strcmp
     popl %ecx
     cmp %eax, nullPtr           #here we compare to the "mul" string and enter handleMul if the string was found
-    je handleMul
+    je firstHandleMul
     
     pushl $divText
     call strcmp
     popl %ecx
     cmp %eax, nullPtr           #here we compare to the "mul" string and enter handleMul if the string was found
-    je handleDiv
+    je firstHandleDiv
     
    # popl %ecx                   #we should not pop the string here bc if it was not found it should remain on the stack
     
