@@ -1,5 +1,5 @@
 .data
-    length: .long 3
+    length: .long 100
     textToRead: .space 102
     currPosition: .space 4
     
@@ -35,6 +35,7 @@
     
     printfTextPositive: .asciz "%d "
     printfTextNegative: .asciz "-%d "
+    variableToPrint: .asciz "  "
 .text
 
 .global main
@@ -91,6 +92,15 @@ preparingTextLoop:
     movb %dl, firstLetter
     
     incl currPosition                   #contorul nostru creste
+    
+    movl $0, %eax
+    cmpb %al, firstLetter
+    je processingText
+    
+    movl $0, %eax
+    movb $10, %al
+    cmpb %al, firstLetter
+    je processingText
     
     mov $0, %eax
     movb whereNumberEnds, %al
@@ -186,6 +196,16 @@ showNegativeNumber:
     jmp processingTextLoop
     
 showEncoding:
+    mov $0, %eax
+    movb smallCalculatedNumber, %al
+    movb %al, variableToPrint
+    
+    mov $4, %eax
+    mov $1, %ebx
+    mov $variableToPrint, %ecx
+    mov $2, %edx
+    int $0x80
+
     jmp processingTextLoop
     
 processingTextLoop:
@@ -253,10 +273,10 @@ processingTextLoop:
     jge showPositiveNumber
     
     cmpl %ecx, whereNegativeEnds
-    jle showNegativeNumber
+    jge showNegativeNumber
     
     cmpl %ecx, whereEncodingEnds
-    jle showEncoding
+    jge showEncoding
 
 finish:
     mov $1, %eax
