@@ -3,7 +3,7 @@
     textToRead: .space 102
     variables: .space 505
 
-    spaceString: .asciz " "
+    spaceNewlineString: .asciz " \n"
     whereNumberEnds: .long 57
     
     nullPtr: .long 0
@@ -29,6 +29,7 @@
     
     printfTextPositive: .asciz "%d"
     newlineToPrint: .asciz "\n"
+    finalPrintfFormat: .asciz "%s\n"
 
 .text
 
@@ -48,7 +49,7 @@ readText:
     jmp processingText
     
 processingText:
-    pushl $spaceString
+    pushl $spaceNewlineString
     pushl $textToRead
     
     call strtok                                 #calling strtok for the first time
@@ -461,7 +462,7 @@ processingTextLoop:
     
 nextStrtok:
 
-    pushl $spaceString
+    pushl $spaceNewlineString
     pushl nullPtr
     
     mov $0, %eax    
@@ -474,17 +475,15 @@ nextStrtok:
     
     
 finish:
-    mov $4, %eax
-    mov $1, %ebx
-    popl %ecx                           #here we print the result
-    mov $100, %edx
-    int $0x80
+    pushl $finalPrintfFormat
+    call printf
     
-    mov $4, %eax
-    mov $1, %ebx
-    mov $newlineToPrint, %ecx           #here we print the newline
-    mov $1, %edx
-    int $0x80
+    popl %ebx
+    popl %ebx
+    
+    pushl $0
+    call fflush
+    popl %ebx
 
     mov $1, %eax
     mov $0, %ebx
