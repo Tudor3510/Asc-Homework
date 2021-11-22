@@ -476,7 +476,7 @@ nextStrtok:
     
 finish:
     pushl $finalPrintfFormat
-    call printf
+    call printf                 #here we print the result
     
     popl %ebx
     popl %ebx
