@@ -162,33 +162,166 @@ thirdHandleAdd:                                 #here we have eliminated the las
     jmp nextStrtok
 
 
+sub_firstStackIsNumber:
+    pushl %edi
+    call atoi
+    popl %edi
+    
+    movl %eax, firstCalcNumber
+    
+    jmp secondHandleSub
+    
+sub_secondStackIsNumber:
+    pushl %edi
+    call atoi
+    popl %edi
+    
+    movl %eax, secondCalcNumber
+    
+    jmp thirdHandleSub
+    
 
 firstHandleSub:
     popl %ecx
     
+    mov $0, %eax
+    popl %edi
+    movb (%edi), %al                            #%edi should remain unchanged in order to use it in the firstStackIsNumber
+    movl %eax, variableAsciiCode
+    
+    cmp %eax, whereNumberEnds                   #here we decide if last number from stack is a variable or a number
+    jge sub_firstStackIsNumber
+    
+    movl variableAsciiCode, %ecx
+    mov $variables, %edi
+    
+    movl (%edi, %ecx, 4), %eax
+    movl %eax, firstCalcNumber                  #here we handle the variable and get its value in firstCalcNumber
+    
     jmp secondHandleSub
     
 secondHandleSub:
+    mov $0, %eax
+    popl %edi
+    movb (%edi), %al                            #%edi should remain unchanged in order to use it in the secondStackIsNumber
+    movl %eax, variableAsciiCode
+    
+    cmp %eax, whereNumberEnds                   #here we decide if last(the second when we have entered firstHandleSub) number from stack is a variable or a number
+    jge sub_secondStackIsNumber
+    
+    movl variableAsciiCode, %ecx
+    mov $variables, %edi
+    
+    movl (%edi, %ecx, 4), %eax
+    movl %eax, secondCalcNumber                 #here we handle the variable and get its value in secondCalcNumber
 
     jmp thirdHandleSub
-
-thirdHandleSub:
+    
+thirdHandleSub:                                 #here we have eliminated the last 2 values from the stack, firstCalcNumber and secondCalcNumber holding their decimal value
+    movl secondCalcNumber, %eax
+    subl firstCalcNumber, %eax
+    movl %eax, finalCalcNumber
+    
+    pushl finalCalcNumber
+    pushl $printfTextPositive
+    
+    movl currentIndex, %eax
+    movl $4, %ebx
+    imull %ebx
+    mov $toAddOnStack, %edi                     #calculating the memory address where we would store our number as string
+    addl %eax, %edi
+    pushl %edi
+    
+    call sprintf                                #transform the number into the string
+    popl %edi
+    
+    popl %ecx                                   #we pop these 2 arguments in order to store the resultedNumber(on the stack) as a string
+    popl %ecx
+    
+    pushl %edi
     
     jmp nextStrtok
     
-    
 
-firstHandleMul:
-    popl %ecx
-    
+mul_firstStackIsNumber:
+    pushl %edi
+    call atoi
+    popl %edi
+
+    movl %eax, firstCalcNumber
+
     jmp secondHandleMul
-    
-secondHandleMul:
+
+mul_secondStackIsNumber:
+    pushl %edi
+    call atoi
+    popl %edi
+
+    movl %eax, secondCalcNumber
 
     jmp thirdHandleMul
 
-thirdHandleMul:
-    
+
+firstHandleMul:
+    popl %ecx
+
+    mov $0, %eax
+    popl %edi
+    movb (%edi), %al                            #%edi should remain unchanged in order to use it in the firstStackIsNumber
+    movl %eax, variableAsciiCode
+
+    cmp %eax, whereNumberEnds                   #here we decide if last number from stack is a variable or a number
+    jge mul_firstStackIsNumber
+
+    movl variableAsciiCode, %ecx
+    mov $variables, %edi
+
+    movl (%edi, %ecx, 4), %eax
+    movl %eax, firstCalcNumber                  #here we handle the variable and get its value in firstCalcNumber
+
+    jmp secondHandleMul
+
+secondHandleMul:
+    mov $0, %eax
+    popl %edi
+    movb (%edi), %al                            #%edi should remain unchanged in order to use it in the secondStackIsNumber
+    movl %eax, variableAsciiCode
+
+    cmp %eax, whereNumberEnds                   #here we decide if last(the second when we have entered firstHandleMul) number from stack is a variable or a number
+    jge mul_secondStackIsNumber
+
+    movl variableAsciiCode, %ecx
+    mov $variables, %edi
+
+    movl (%edi, %ecx, 4), %eax
+    movl %eax, secondCalcNumber                 #here we handle the variable and get its value in secondCalcNumber
+
+    jmp thirdHandleMul
+
+thirdHandleMul:                                 #here we have eliminated the last 2 values from the stack, firstCalcNumber and secondCalcNumber holding their decimal value
+    movl firstCalcNumber, %eax
+    movl secondCalcNumber, %ebx
+    imull %ebx
+    movl %eax, finalCalcNumber
+
+    pushl finalCalcNumber
+    pushl $printfTextPositive
+
+    movl currentIndex, %eax
+    movl $4, %ebx
+    imull %ebx
+    mov $toAddOnStack, %edi                     #calculating the memory address where we would store our number as string
+    addl %eax, %edi
+    pushl %edi
+
+    call sprintf                                #transform the number into the string
+    popl %edi
+
+    popl %ecx                                   #we pop these 2 arguments in order to store the resultedNumber(on the stack) as a string
+    popl %ecx
+
+    pushl %edi
+
     jmp nextStrtok
 
 
