@@ -1,0 +1,7 @@
+x 155 let y 255 let x x y mul mul 3 div 17 div 
+
+x = 155
+y = 255
+
+
+155 155 255 

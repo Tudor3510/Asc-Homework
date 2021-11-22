@@ -21,13 +21,14 @@
     secondCalcNumber: .space 4
     finalCalcNumber: .space 4
     
-    toAddOnStack: .space 505
+    toAddOnStack: .space 22000
     currentIndex: .space 4
     currentIndexConsideringNumberLength: .space 4
     #the maximum digits number is 3 and we should have the null terminating character, so 4 bytes are allocated for a number
     #currentIndexConsideringNumberLength = currentIndex * 4
     
     printfTextPositive: .asciz "%d"
+    newlineToPrint: .asciz "\n"
 
 .text
 
@@ -145,7 +146,7 @@ thirdHandleAdd:                                 #here we have eliminated the las
     pushl $printfTextPositive
     
     movl currentIndex, %eax
-    movl $4, %ebx
+    movl $11, %ebx
     imull %ebx
     mov $toAddOnStack, %edi                     #calculating the memory address where we would store our number as string
     addl %eax, %edi
@@ -158,6 +159,8 @@ thirdHandleAdd:                                 #here we have eliminated the las
     popl %ecx
     
     pushl %edi
+    
+    incl currentIndex                           #the index moves to the next element in the array which stores the string made by us
     
     jmp nextStrtok
 
@@ -226,7 +229,7 @@ thirdHandleSub:                                 #here we have eliminated the las
     pushl $printfTextPositive
     
     movl currentIndex, %eax
-    movl $4, %ebx
+    movl $11, %ebx
     imull %ebx
     mov $toAddOnStack, %edi                     #calculating the memory address where we would store our number as string
     addl %eax, %edi
@@ -239,6 +242,8 @@ thirdHandleSub:                                 #here we have eliminated the las
     popl %ecx
     
     pushl %edi
+    
+    incl currentIndex                           #the index moves to the next element in the array which stores the string made by us
     
     jmp nextStrtok
     
@@ -308,7 +313,93 @@ thirdHandleMul:                                 #here we have eliminated the las
     pushl $printfTextPositive
 
     movl currentIndex, %eax
-    movl $4, %ebx
+    movl $11, %ebx
+    imull %ebx
+    mov $toAddOnStack, %edi                     #calculating the memory address where we would store our number as string
+    addl %eax, %edi
+    pushl %edi
+
+    call sprintf                                #transform the number into the string
+    popl %edi
+
+    popl %ecx                                   #we pop these 2 arguments in order to store the resultedNumber(on the stack) as a string
+    popl %ecx
+
+    pushl %edi
+    
+    incl currentIndex                           #the index moves to the next element in the array which stores the string made by us
+
+    jmp nextStrtok
+
+
+
+div_firstStackIsNumber:
+    pushl %edi
+    call atoi
+    popl %edi
+
+    movl %eax, firstCalcNumber
+
+    jmp secondHandleDiv
+
+div_secondStackIsNumber:
+    pushl %edi
+    call atoi
+    popl %edi
+
+    movl %eax, secondCalcNumber
+
+    jmp thirdHandleDiv
+
+
+firstHandleDiv:
+    popl %ecx
+
+    mov $0, %eax
+    popl %edi
+    movb (%edi), %al                            #%edi should remain unchanged in order to use it in the firstStackIsNumber
+    movl %eax, variableAsciiCode
+
+    cmp %eax, whereNumberEnds                   #here we decide if last number from stack is a variable or a number
+    jge div_firstStackIsNumber
+
+    movl variableAsciiCode, %ecx
+    mov $variables, %edi
+
+    movl (%edi, %ecx, 4), %eax
+    movl %eax, firstCalcNumber                  #here we handle the variable and get its value in firstCalcNumber
+
+    jmp secondHandleDiv
+
+secondHandleDiv:
+    mov $0, %eax
+    popl %edi
+    movb (%edi), %al                            #%edi should remain unchanged in order to use it in the secondStackIsNumber
+    movl %eax, variableAsciiCode
+
+    cmp %eax, whereNumberEnds                   #here we decide if last(the second when we have entered firstHandleDiv) number from stack is a variable or a number
+    jge div_secondStackIsNumber
+
+    movl variableAsciiCode, %ecx
+    mov $variables, %edi
+
+    movl (%edi, %ecx, 4), %eax
+    movl %eax, secondCalcNumber                 #here we handle the variable and get its value in secondCalcNumber
+
+    jmp thirdHandleDiv
+
+thirdHandleDiv:                                 #here we have eliminated the last 2 values from the stack, firstCalcNumber and secondCalcNumber holding their decimal value
+    movl $0, %edx
+    movl secondCalcNumber, %eax
+    movl firstCalcNumber, %ebx
+    idivl %ebx
+    movl %eax, finalCalcNumber
+
+    pushl finalCalcNumber
+    pushl $printfTextPositive
+
+    movl currentIndex, %eax
+    movl $11, %ebx
     imull %ebx
     mov $toAddOnStack, %edi                     #calculating the memory address where we would store our number as string
     addl %eax, %edi
@@ -322,24 +413,9 @@ thirdHandleMul:                                 #here we have eliminated the las
 
     pushl %edi
 
+    incl currentIndex                           #the index moves to the next element in the array which stores the string made by us
+
     jmp nextStrtok
-
-
-
-firstHandleDiv:
-    popl %ecx
-    
-    jmp secondHandleDiv
-    
-secondHandleDiv:
-
-    jmp thirdHandleDiv
-
-thirdHandleDiv:
-    
-    jmp nextStrtok
-
-
 
 
 processingTextLoop:
@@ -400,8 +476,14 @@ nextStrtok:
 finish:
     mov $4, %eax
     mov $1, %ebx
-    popl %ecx
+    popl %ecx                           #here we print the result
     mov $100, %edx
+    int $0x80
+    
+    mov $4, %eax
+    mov $1, %ebx
+    mov $newlineToPrint, %ecx           #here we print the newline
+    mov $1, %edx
     int $0x80
 
     mov $1, %eax
