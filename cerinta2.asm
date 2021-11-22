@@ -19,9 +19,15 @@
     
     firstCalcNumber: .space 4
     secondCalcNumber: .space 4
+    finalCalcNumber: .space 4
     
     toAddOnStack: .space 505
-    currentIndex: .long 0
+    currentIndex: .space 4
+    currentIndexConsideringNumberLength: .space 4
+    #the maximum digits number is 3 and we should have the null terminating character, so 4 bytes are allocated for a number
+    #currentIndexConsideringNumberLength = currentIndex * 4
+    
+    printfTextPositive: .asciz "%d"
 
 .text
 
@@ -76,35 +82,83 @@ handleLet:
 
 
 add_firstStackIsNumber:
+    pushl %edi
+    call atoi
+    popl %edi
+    
+    movl %eax, firstCalcNumber
     
     jmp secondHandleAdd
+    
+add_secondStackIsNumber:
+    pushl %edi
+    call atoi
+    popl %edi
+    
+    movl %eax, secondCalcNumber
+    
+    jmp thirdHandleAdd
     
 
 firstHandleAdd:
     popl %ecx
     
     mov $0, %eax
-    popl %edx
-    movb (%edx), %al
+    popl %edi
+    movb (%edi), %al                            #%edi should remain unchanged in order to use it in the firstStackIsNumber
     movl %eax, variableAsciiCode
     
-    cmp %eax, whereNumberEnds                   #here we decide if we have a variable or a number
+    cmp %eax, whereNumberEnds                   #here we decide if last number from stack is a variable or a number
     jge add_firstStackIsNumber
     
     movl variableAsciiCode, %ecx
     mov $variables, %edi
     
     movl (%edi, %ecx, 4), %eax
-    movl %eax, firstCalcNumber                  #here we handle the variable
+    movl %eax, firstCalcNumber                  #here we handle the variable and get its value in firstCalcNumber
     
     jmp secondHandleAdd
     
 secondHandleAdd:
+    mov $0, %eax
+    popl %edi
+    movb (%edi), %al                            #%edi should remain unchanged in order to use it in the secondStackIsNumber
+    movl %eax, variableAsciiCode
     
+    cmp %eax, whereNumberEnds                   #here we decide if last(the second when we have entered firstHandleAdd) number from stack is a variable or a number
+    jge add_secondStackIsNumber
+    
+    movl variableAsciiCode, %ecx
+    mov $variables, %edi
+    
+    movl (%edi, %ecx, 4), %eax
+    movl %eax, secondCalcNumber                 #here we handle the variable and get its value in secondCalcNumber
+
     jmp thirdHandleAdd
     
-thirdHandleAdd:
-
+thirdHandleAdd:                                 #here we have eliminated the last 2 values from the stack, firstCalcNumber and secondCalcNumber holding their decimal value
+    movl firstCalcNumber, %eax
+    addl secondCalcNumber, %eax
+    movl %eax, finalCalcNumber
+    
+    pushl finalCalcNumber
+    pushl $printfTextPositive
+    
+    movl currentIndex, %eax
+    movl $4, %ebx
+    imull %ebx
+    mov $toAddOnStack, %edi                     #calculating the memory address where we would store our number as string
+    addl %eax, %edi
+    pushl %edi
+    
+    call sprintf                                #transform the number into the string
+    popl %edi
+    
+    popl %ecx                                   #we pop these 2 arguments in order to store the resultedNumber(on the stack) as a string
+    popl %ecx
+    
+    pushl %edi
+    
     jmp nextStrtok
 
 
@@ -211,6 +265,12 @@ nextStrtok:
     
     
 finish:
+    mov $4, %eax
+    mov $1, %ebx
+    popl %ecx
+    mov $100, %edx
+    int $0x80
+
     mov $1, %eax
     mov $0, %ebx
     int $0x80
