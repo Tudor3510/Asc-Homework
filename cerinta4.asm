@@ -15,6 +15,7 @@
     
     stdioStringFormat: .asciz "%s"
     stdioIntFormat: .asciz "%d"
+    stdioIntSpaceFormat: .asciz "%d "
 
     instructionToDo: .space 4
     firstString: .space 12
@@ -26,6 +27,8 @@
     mulText: .asciz "mul"
     divText: .asciz "div"
     rotText: .asciz "rot90d"
+    
+    numberToShow: .space 4
 
 .text
 
@@ -109,11 +112,17 @@ opIsAdd:
     popl %ecx
     movl $0, instructionToDo
     
+    movl $0, currentLine
+    movl $matrix, currentLineAddress
+    
     jmp showLinesLoop
     
 opIsSub:
     popl %ecx
     movl $1, instructionToDo
+    
+    movl $0, currentLine
+    movl $matrix, currentLineAddress
     
     jmp showLinesLoop
     
@@ -121,11 +130,17 @@ opIsMul:
     popl %ecx
     movl $2, instructionToDo
     
+    movl $0, currentLine
+    movl $matrix, currentLineAddress
+    
     jmp showLinesLoop
 
 opIsDiv:
     popl %ecx
     movl $3, instructionToDo
+    
+    movl $0, currentLine
+    movl $matrix, currentLineAddress
     
     jmp showLinesLoop
 
@@ -133,7 +148,7 @@ opIsRot:
     popl %ecx
     movl $4, instructionToDo
     
-    jmp showLinesLoop
+  #  jmp showLinesLoop
 
 identifyingOperation:
     pushl $secondString
@@ -188,18 +203,34 @@ identifyingOperation:
 showLinesLoop:
     movl noLines, %eax
     cmp %eax, currentLine
-    jge identifyingOperation
-    
-    movl currentLineAddress, %eax
-    movl %eax, lastLineAddress                      #we store the last line address
-    
-    movl currentLine, %eax                       
-    movl %eax, lastLine                             #we store the last line no
+    jge finish
     
     movl $0, currentColumn                          #we set the column to 0
-    jmp readNumbersLine                             #here we read the numbers from the line
+    jmp showNumbersLine                             #here we show the numbers from the line
 
+showNumbersLine:
+    movl noColumns, %eax
+    cmp %eax, currentColumn
+    jge preparingNextShowLineLoop
     
+    movl currentLineAddress, %edi
+    movl currentColumn, %ecx
+    movl (%edi, %ecx, 4), %eax
+    movl %eax, numberToShow
+    
+    
+    
+    
+    
+    
+
+preparingNextShowLineLoop:
+    movl lineMemoryLength, %eax
+    addl %eax, currentLineAddress                   #we calculate the address for the next line
+    
+    incl currentLine                                #we increase the line index
+    
+    jmp showLinesLoop
     
 finish:
     movl $1, %eax
