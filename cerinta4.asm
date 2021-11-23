@@ -1,6 +1,6 @@
 .data
     matrix: .space 1770
-    lineLength: .long 21
+    lineMemoryLength: .long 84
     currentLineAddress: .space 4
     currentLine: .space 4
     currentColumn: .space 4
@@ -17,8 +17,15 @@
     stdioIntFormat: .asciz "%d"
 
     instructionToDo: .space 4
-    identifyingString: .space 24
+    firstString: .space 12
+    secondString: .space 12
     numberToWorkWith: .space 4
+    
+    addText: .asciz "add"
+    subText: .asciz "sub"
+    mulText: .asciz "mul"
+    divText: .asciz "div"
+    rotText: .asciz "rot90d"
 
 .text
 
@@ -87,22 +94,110 @@ readNumbersLine:
     popl %ecx                                       #now we clear the stack
     popl %ecx
     
-    incl currentColumn                             #we get to the next column
+    incl currentColumn                              #we get to the next column
     jmp readNumbersLine
     
 preparingNextReadLineLoop:
-    movl lineLength, %eax
-    movl $4, %ebx                                   #how much space does an int take
-    imull %ebx
-    
+    movl lineMemoryLength, %eax
     addl %eax, currentLineAddress                   #we calculate the address for the next line
-    incl currentLine
+    
+    incl currentLine                                #we increase the line index
     
     jmp readLinesLoop
     
+opIsAdd:
+    popl %ecx
+    movl $0, instructionToDo
+    
+    jmp showLinesLoop
+    
+opIsSub:
+    popl %ecx
+    movl $1, instructionToDo
+    
+    jmp showLinesLoop
+    
+opIsMul:
+    popl %ecx
+    movl $2, instructionToDo
+    
+    jmp showLinesLoop
+
+opIsDiv:
+    popl %ecx
+    movl $3, instructionToDo
+    
+    jmp showLinesLoop
+
+opIsRot:    
+    popl %ecx
+    movl $4, instructionToDo
+    
+    jmp showLinesLoop
 
 identifyingOperation:
-
+    pushl $secondString
+    pushl $firstString
+    call strcpy                                     #copying the second string in the first string
+    popl %ecx
+    
+    pushl $stdioStringFormat
+    call scanf                                      #reading the text from the keyboard
+    popl %ecx
+    
+    
+    pushl $addText
+    call strcmp                                     #veryfing if it is an add operation
+    popl %ecx
+    movl $0, %ebx
+    cmp %eax, %ebx
+    je opIsAdd
+    
+    pushl $subText
+    call strcmp                                     #veryfing if it is an sub operation
+    popl %ecx
+    movl $0, %ebx
+    cmp %eax, %ebx
+    je opIsSub
+    
+    pushl $mulText
+    call strcmp                                     #veryfing if it is an mul operation
+    popl %ecx
+    movl $0, %ebx
+    cmp %eax, %ebx
+    je opIsMul
+    
+    pushl $divText
+    call strcmp                                     #veryfing if it is an div operation
+    popl %ecx
+    movl $0, %ebx
+    cmp %eax, %ebx
+    je opIsDiv
+    
+    pushl $rotText
+    call strcmp                                     #veryfing if it is an rotation operation
+    popl %ecx
+    movl $0, %ebx
+    cmp %eax, %ebx
+    je opIsRot
+       
+    jmp identifyingOperation                        #looping until we find an operation
+    
+    
+    
+showLinesLoop:
+    movl noLines, %eax
+    cmp %eax, currentLine
+    jge identifyingOperation
+    
+    movl currentLineAddress, %eax
+    movl %eax, lastLineAddress                      #we store the last line address
+    
+    movl currentLine, %eax                       
+    movl %eax, lastLine                             #we store the last line no
+    
+    movl $0, currentColumn                          #we set the column to 0
+    jmp readNumbersLine                             #here we read the numbers from the line
 
     
     
