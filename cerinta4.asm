@@ -16,19 +16,29 @@
     stdioStringFormat: .asciz "%s"
     stdioIntFormat: .asciz "%d"
     stdioIntSpaceFormat: .asciz "%d "
+    newlineString: .asciz "\n"
 
     instructionToDo: .space 4
     firstString: .space 12
     secondString: .space 12
-    numberToWorkWith: .space 4
     
     addText: .asciz "add"
+    addNumber: .long 0
+    
     subText: .asciz "sub"
+    subNumber: .long 1
+    
     mulText: .asciz "mul"
+    mulNumber: .long 2
+    
     divText: .asciz "div"
+    divNumber: .long 3
+    
     rotText: .asciz "rot90d"
+    rotNumber: .long 4
     
     numberToShow: .space 4
+    givenNumber: .space 4
 
 .text
 
@@ -115,6 +125,11 @@ opIsAdd:
     movl $0, currentLine
     movl $matrix, currentLineAddress
     
+    pushl $firstString
+    call atoi
+    popl %ecx
+    movl %eax, givenNumber
+    
     jmp showLinesLoop
     
 opIsSub:
@@ -123,6 +138,11 @@ opIsSub:
     
     movl $0, currentLine
     movl $matrix, currentLineAddress
+    
+    pushl $firstString
+    call atoi
+    popl %ecx
+    movl %eax, givenNumber
     
     jmp showLinesLoop
     
@@ -133,6 +153,11 @@ opIsMul:
     movl $0, currentLine
     movl $matrix, currentLineAddress
     
+    pushl $firstString
+    call atoi
+    popl %ecx
+    movl %eax, givenNumber
+    
     jmp showLinesLoop
 
 opIsDiv:
@@ -141,6 +166,11 @@ opIsDiv:
     
     movl $0, currentLine
     movl $matrix, currentLineAddress
+    
+    pushl $firstString
+    call atoi
+    popl %ecx
+    movl %eax, givenNumber
     
     jmp showLinesLoop
 
@@ -199,6 +229,38 @@ identifyingOperation:
     jmp identifyingOperation                        #looping until we find an operation
     
     
+makingAdd:
+    movl givenNumber, %eax
+    addl %eax, numberToShow
+    
+    ret
+    
+makingSub:
+    movl givenNumber, %eax
+    subl %eax, numberToShow
+    
+    ret
+    
+makingMul:
+    movl givenNumber, %eax
+    movl numberToShow, %ecx
+    movl $0, %edx
+    
+    imull %ecx
+    
+    movl %eax, numberToShow
+    
+    ret
+    
+makingDiv:
+    movl givenNumber, %eax
+    movl numberToShow, %ecx
+    movl $0, %edx
+    
+    cdq
+    idivl %ecx
+    
+    movl %eax, numberToShow
     
 showLinesLoop:
     movl noLines, %eax
@@ -218,9 +280,29 @@ showNumbersLine:
     movl (%edi, %ecx, 4), %eax
     movl %eax, numberToShow
     
+    movl instructionToDo, %ebx
+    
+    cmp %ebx, addNumber
+    call makingAdd
+    
+    cmp %ebx, subNumber
+    call makingSub
+    
+    cmp %ebx, mulNumber
+    call makingMul
+    
+    cmp %ebx, divNumber
+    call makingDiv
+    
+    pushl numberToShow
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
     
     
-    
+    incl currentColumn                              #we get to the next column
+    jmp showNumbersLine
     
     
 
@@ -233,6 +315,14 @@ preparingNextShowLineLoop:
     jmp showLinesLoop
     
 finish:
+    pushl $newlineString
+    call printf
+    popl %ecx
+    
+    pushl $0
+    call fflush
+    popl %ecx
+    
     movl $1, %eax
     movl $0, %ebx
     int $0x80
