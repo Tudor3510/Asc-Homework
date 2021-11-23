@@ -233,13 +233,13 @@ makingAdd:
     movl givenNumber, %eax
     addl %eax, numberToShow
     
-    ret
+    jmp continueShowNumbersLine
     
 makingSub:
     movl givenNumber, %eax
     subl %eax, numberToShow
     
-    ret
+    jmp continueShowNumbersLine
     
 makingMul:
     movl givenNumber, %eax
@@ -250,17 +250,19 @@ makingMul:
     
     movl %eax, numberToShow
     
-    ret
+    jmp continueShowNumbersLine
     
 makingDiv:
-    movl givenNumber, %eax
-    movl numberToShow, %ecx
+    movl givenNumber, %ecx
+    movl numberToShow, %eax
     movl $0, %edx
     
     cdq
     idivl %ecx
     
     movl %eax, numberToShow
+    
+    jmp continueShowNumbersLine
     
 showLinesLoop:
     movl noLines, %eax
@@ -283,16 +285,20 @@ showNumbersLine:
     movl instructionToDo, %ebx
     
     cmp %ebx, addNumber
-    call makingAdd
+    je makingAdd
     
     cmp %ebx, subNumber
-    call makingSub
+    je makingSub
     
     cmp %ebx, mulNumber
-    call makingMul
+    je makingMul
     
     cmp %ebx, divNumber
-    call makingDiv
+    je makingDiv
+
+    jmp continueShowNumbersLine
+
+continueShowNumbersLine:
     
     pushl numberToShow
     pushl $stdioIntSpaceFormat
