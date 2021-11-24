@@ -177,8 +177,11 @@ opIsDiv:
 opIsRot:    
     popl %ecx
     movl $4, instructionToDo
-    
-  #  jmp showLinesLoop
+
+    movl lastLine, currentLine
+    movl lastLineAddress, currentLineAddress
+
+    jmp showColumnsLoop
 
 identifyingOperation:
     pushl $secondString
@@ -320,6 +323,9 @@ preparingNextShowLineLoop:
     
     jmp showLinesLoop
     
+
+showColumnsLoop:
+
 finish:
     pushl $newlineString
     call printf
