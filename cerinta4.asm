@@ -122,6 +122,18 @@ opIsAdd:
     popl %ecx
     movl $0, instructionToDo
     
+    pushl noLines
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
+    
+    pushl noColumns
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
+    
     movl $0, currentLine
     movl $matrix, currentLineAddress
     
@@ -135,6 +147,18 @@ opIsAdd:
 opIsSub:
     popl %ecx
     movl $1, instructionToDo
+    
+    pushl noLines
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
+    
+    pushl noColumns
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
     
     movl $0, currentLine
     movl $matrix, currentLineAddress
@@ -150,6 +174,19 @@ opIsMul:
     popl %ecx
     movl $2, instructionToDo
     
+    pushl noLines
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
+    
+    pushl noColumns
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
+    
+    
     movl $0, currentLine
     movl $matrix, currentLineAddress
     
@@ -164,6 +201,19 @@ opIsDiv:
     popl %ecx
     movl $3, instructionToDo
     
+    pushl noLines
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
+    
+    pushl noColumns
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
+    
+    
     movl $0, currentLine
     movl $matrix, currentLineAddress
     
@@ -177,9 +227,26 @@ opIsDiv:
 opIsRot:    
     popl %ecx
     movl $4, instructionToDo
+    
+    pushl noColumns
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
+    
+    pushl noLines
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
+    
 
-    movl lastLine, currentLine
-    movl lastLineAddress, currentLineAddress
+    movl lastLine, %eax
+    movl %eax, currentLine
+    
+    movl lastLineAddress, %eax
+    movl %eax, currentLineAddress
+    movl $0, currentColumn
 
     jmp showColumnsLoop
 
@@ -234,30 +301,30 @@ identifyingOperation:
     
 makingAdd:
     movl givenNumber, %eax
-    addl %eax, numberToShow
+    addl %eax, numberToShow                         #making the add calculation
     
-    jmp continueShowNumbersLine
+    jmp continueShowNumbersLine                     #continue to show numbers from line
     
 makingSub:
     movl givenNumber, %eax
-    subl %eax, numberToShow
+    subl %eax, numberToShow                         #making the sub calculation
     
-    jmp continueShowNumbersLine
+    jmp continueShowNumbersLine                     #continue to show numbers from line
     
 makingMul:
     movl givenNumber, %eax
-    movl numberToShow, %ecx
+    movl numberToShow, %ecx                         #making the mul calculation
     movl $0, %edx
     
     imull %ecx
     
     movl %eax, numberToShow
     
-    jmp continueShowNumbersLine
+    jmp continueShowNumbersLine                     #continue to show numbers from line
     
 makingDiv:
     movl givenNumber, %ecx
-    movl numberToShow, %eax
+    movl numberToShow, %eax                         #making the div calculation
     movl $0, %edx
     
     cdq
@@ -265,7 +332,7 @@ makingDiv:
     
     movl %eax, numberToShow
     
-    jmp continueShowNumbersLine
+    jmp continueShowNumbersLine                     #continue to show numbers from line
     
 showLinesLoop:
     movl noLines, %eax
@@ -275,9 +342,9 @@ showLinesLoop:
     movl $0, currentColumn                          #we set the column to 0
     jmp showNumbersLine                             #here we show the numbers from the line
 
-showNumbersLine:
-    movl noColumns, %eax
-    cmp %eax, currentColumn
+showNumbersLine:                                    #here we get the number
+    movl noColumns, %eax                            #apply the desired operation
+    cmp %eax, currentColumn                         #and then we show the final result
     jge preparingNextShowLineLoop
     
     movl currentLineAddress, %edi
@@ -305,7 +372,7 @@ continueShowNumbersLine:
     
     pushl numberToShow
     pushl $stdioIntSpaceFormat
-    call printf
+    call printf                                     #here we show the number at the stdout
     popl %ecx
     popl %ecx
     
@@ -325,6 +392,44 @@ preparingNextShowLineLoop:
     
 
 showColumnsLoop:
+    movl noColumns, %eax
+    cmp %eax, currentColumn
+    jge finish
+    
+    movl lastLine, %eax
+    movl %eax, currentLine
+    
+    movl lastLineAddress, %eax
+    movl %eax, currentLineAddress
+
+    jmp showNumbersColumn
+    
+showNumbersColumn:
+    movl $0, %eax
+    cmp %eax, currentLine
+    jl preparingNextShowColumnLoop
+    
+    movl currentLineAddress, %edi
+    movl currentColumn, %ecx
+    
+    pushl (%edi, %ecx, 4)
+    pushl $stdioIntSpaceFormat
+    call printf
+    popl %ecx
+    popl %ecx
+    
+    movl lineMemoryLength, %eax
+    subl %eax, currentLineAddress
+    
+    decl currentLine
+    
+    jmp showNumbersColumn 
+    
+preparingNextShowColumnLoop:
+    incl currentColumn
+    
+    jmp showColumnsLoop
+    
 
 finish:
     pushl $newlineString
