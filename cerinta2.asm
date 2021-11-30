@@ -1,7 +1,7 @@
 .data
-    length: .long 100
-    textToRead: .space 102
-    variables: .space 505
+    length: .long 103
+    textToRead: .space 105
+    variables: .space 605
 
     spaceNewlineString: .asciz " \n"
     whereNumberEnds: .long 57
@@ -44,7 +44,7 @@ readText:
     mov $3, %eax
     mov $0, %ebx
     mov $textToRead, %ecx                       #reading the text from the keyboard
-    mov $102, %edx
+    mov $104, %edx
     int $0x80
     jmp processingText
     
@@ -455,7 +455,7 @@ processingTextLoop:
     cmp %eax, nullPtr           #here we compare to the "mul" string and enter handleMul if the string was found
     je firstHandleDiv
     
-   # popl %ecx                   #we should not pop the string here bc if it was not found it should remain on the stack
+                                #we should not pop the string here bc if it was not found it should remain on the stack
     
     jmp nextStrtok
     

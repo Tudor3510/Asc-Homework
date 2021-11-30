@@ -120,6 +120,8 @@ preparingTextLoop:
     cmpb %al, firstLetter
     jle preparingTextSmallLetter
     
+    jmp preparingTextLoop
+    
 
 
 processingText:
@@ -281,6 +283,8 @@ processingTextLoop:
     
     cmpl %ecx, whereEncodingEnds
     jge showEncoding
+    
+    jmp processingTextLoop
 
 finish:
     mov $4, %eax
