@@ -1,6 +1,6 @@
 .data
-    length: .long 100
-    textToRead: .space 102
+    length: .long 103
+    textToRead: .space 105
     currPosition: .space 4
     
     whereNumberEnds: .byte '9'
@@ -16,7 +16,7 @@
     thirdLetter: .space 1
     
     calculatedNumber: .long 0
-    smallCalculatedNumber: .long 4
+    smallCalculatedNumber: .long 0
     
     letText: .asciz "let "
     letNumber: .long 3072
@@ -48,7 +48,7 @@ readText:
     mov $3, %eax
     mov $0, %ebx
     mov $textToRead, %ecx
-    mov $102, %edx
+    mov $104, %edx
     int $0x80
     jmp preparingText
 
@@ -59,6 +59,7 @@ preparingText:
 preparingTextNumber:
     subb $47, firstLetter               # 0 will be 1, 1 will be 2, ........
     
+    movl $0, %edx
     movb firstLetter, %dl
     movb %dl, (%edi, %ecx, 1)
     
@@ -67,6 +68,7 @@ preparingTextNumber:
 preparingTextBigLetter:
     subb $54, firstLetter               # A will be 11, B will be 12, ........
     
+    movl $0, %edx
     movb firstLetter, %dl
     movb %dl, (%edi, %ecx, 1)
 
@@ -75,7 +77,7 @@ preparingTextBigLetter:
 preparingTextSmallLetter:
     subb $86, firstLetter               # a will be 11, b will be 12, ........
 
-
+    movl $0, %edx
     movb firstLetter, %dl
     movb %dl, (%edi, %ecx, 1)
 
