@@ -1,5 +1,5 @@
 .data
-    matrix: .space 1770
+    matrix: .space 1870
     lineMemoryLength: .long 84
     currentLineAddress: .space 4
     currentLine: .space 4
