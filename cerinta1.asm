@@ -105,17 +105,17 @@ preparingTextLoop:
     cmpb %al, firstLetter
     je processingText
     
-    mov $0, %eax
+    mov $0, %eax                        #compare with the ascii code of number 9
     movb whereNumberEnds, %al
     cmpb %al, firstLetter
     jle preparingTextNumber
     
-    mov $0, %eax
+    mov $0, %eax                        #compare with the ascii code of big letter
     movb whereBigLetterEnds, %al
     cmpb %al, firstLetter
     jle preparingTextBigLetter
     
-    mov $0, %eax
+    mov $0, %eax                        #compare with the ascii code of small letter
     movb whereSmallLetterEnds, %al
     cmpb %al, firstLetter
     jle preparingTextSmallLetter
@@ -199,7 +199,7 @@ showNegativeNumber:
     jmp processingTextLoop
     
 showEncoding:
-    mov $0, %eax
+    movl $0, %eax
     movb smallCalculatedNumber, %al
     movb %al, variableToPrint
     
@@ -233,12 +233,13 @@ processingTextLoop:
     movb %dl, firstLetter               #getting the first number from a pair which is made from 3 hexa numbers
     decb firstLetter
     
-    addl $3, currPosition                   #contorul nostru creste
+    addl $3, currPosition               #contorul nostru creste
     
     movl $0, %eax
     movb thirdLetter, %al
     movl %eax, %ecx                     #thirdLetter * 16^0 in %ecx
     
+    movl $0, %eax
     movb secondLetter, %al
     movl $16, %ebx
     imul %ebx
