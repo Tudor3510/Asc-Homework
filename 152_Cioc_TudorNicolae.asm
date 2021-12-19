@@ -27,6 +27,7 @@ backtracking:
 .globl main
 main:
     movl %esp, %ebp                                     #for correct debugging
+    movl $index, %eax                                   #THIS SHOULD BE DELETED!!!!!!
     
     pushl $maxNumber
     pushl $scanfIntFormat
@@ -39,6 +40,9 @@ main:
     call scanf                                          #here we read the maxLength that should be between the numbers
     popl toClearStack
     popl toClearStack
+    
+    movl $1, index
+    jmp readArray
     
 readArray:
     movl maxNumber, %eax                               #calculating 3 * maxNumber(3 * n), as we need to know when to stop reading
@@ -53,26 +57,29 @@ readArray:
     movl $4, %ebx
     imull %ebx
     movl %eax, %ebx                                     #%ebx will hold a copy of the calculated position for the current number
-    addl %edi, %eax                                     #now the %eax should contain the address where we should read the number
+    addl %eax, %edi                                     #now the %eax should contain the address where we should read the number
     
-    pushl %eax
+    pushl %edi
     pushl $scanfIntFormat
     call scanf
     popl toClearStack
-    popl %eax                                           #here we get our %eax back
+    popl %edi                                           #here we get our %eax back
     
-    cmp $0, (%eax)
+    cmpl $0, (%edi)
     jne foundFixedNumber
     
+    jmp prepareNextIndex
+    
 foundFixedNumber:
+    movl $fixedPoint, %edi
+    addl %ebx, %edi
+    movl $1, (%edi)
     
-    movl $1, 8(%ebp)
-    
-    popl %ebp
-    ret
+    jmp prepareNextIndex
     
 prepareNextIndex:
-    
+    incl index
+    jmp readArray
     
 callBacktracking:
     
