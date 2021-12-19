@@ -57,22 +57,22 @@ readArray:
     movl $4, %ebx
     imull %ebx
     movl %eax, %ebx                                     #%ebx will hold a copy of the calculated position for the current number
-    addl %eax, %edi                                     #now the %eax should contain the address where we should read the number
+    addl %eax, %edi                                     #now the %edi should contain the address where we should read the number
     
     pushl %edi
     pushl $scanfIntFormat
     call scanf
     popl toClearStack
-    popl %edi                                           #here we get our %eax back
+    popl %edi                                           #here we get our %edi back
     
-    cmpl $0, (%edi)
+    cmpl $0, (%edi)                                     #we compare 0 with the number that we have just read in order to know if it is a fixed number
     jne foundFixedNumber
     
     jmp prepareNextIndex
     
-foundFixedNumber:
-    movl $fixedPoint, %edi
-    addl %ebx, %edi
+foundFixedNumber:                                       #this label treat the case in which we have a fixed point
+    movl $fixedPoint, %edi                              #here we load the fixedPoint array address to %edi
+    addl %ebx, %edi                                     #here we add %ebx (which holds the calculated position for the current number) to %edi
     movl $1, (%edi)
     
     jmp prepareNextIndex
