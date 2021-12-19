@@ -10,10 +10,71 @@
     tripleMaxNumber: .space 4
     
     scanfIntFormat: .asciz "%d"
+    minusOneText: .asciz "-1\n"
+    
+    currPosNum: .space 4
+    spaceBetween: .space 4
+    
     toClearStack: .space 4                              #we will use toClearStack as a variable that will help us to clear the stack
 .text
 verifyGood:
+    pushl %ebp
+    pushl %ebx
+    pushl %edi
+    movl %esp, %ebp
     
+    movl $1, index
+    jmp completeLastNumPositionLoop
+    
+completeLastNumPositionLoop:
+    movl maxNumber, %eax                                #here we store the maxNumber in eax in order to use it for comparision
+    
+    cmpl index, %eax                                    #if maxNumber is smaller than index, then we have finished completing the lastNumPosition
+    jl prepareVerifyGoodLoop
+    
+    movl $lastNumPosition, %edi
+    movl index, %ecx
+    movl $-200, (%edi, %ecx, 4)
+    
+    incl index
+    jmp completeLastNumPositionLoop
+    
+prepareVerifyGoodLoop:
+    movl $1, index
+    jmp verifyGoodLoop
+    
+verifyGoodLoop:
+    movl index, %eax
+    cmpl 16(%ebp), %eax
+    jl verifyGoodReturnPositive
+
+    movl $array, %edi
+    movl index, %ecx
+    movl (%edi, %ecx, 4), %edx
+    movl %edx, currPosNum                               #now currPosNum will have the number that is stored at the array[index]
+    
+    movl index, %eax                                    #we will use %eax to calculate the space between
+
+    movl $lastNumPosition, %edi
+    movl currPosNum, %ecx                               #here we calculate the lastNumPosition[currPosNum]. This should remain unchanged bc we use this result again
+    subl (%edi, %ecx, 4), %eax                          #after verifying to jump to verifyGoodReturnNegative
+    
+    decl %eax                                           #here we decrease the %eax because we need to know the space between
+    
+    movl %eax, spaceBetween
+    cmpl reqLength, %eax
+    jl verifyGoodReturnNegative
+    
+    movl index, %edx 
+    movl %edx, (%edi, %ecx, 4)
+    
+    incl index
+    jmp verifyGoodLoop
+
+verifyGoodReturnNegative:
+
+
+verifyGoodReturnPositive:
 
 backtracking:
     pushl %ebp
@@ -50,15 +111,13 @@ main:
     movl maxNumber, %eax
     movl $3, %ebx
     imull %ebx
-    movl %eax, tripleMaxNumber                          #here we calculate the triple max number variable
+    movl %eax, tripleMaxNumber                          #here we calculate the triple max number variable (3 * maxNumber(3 * n))
     
     movl $1, index
     jmp readArray
     
 readArray:
-    movl maxNumber, %eax                               #calculating 3 * maxNumber(3 * n), as we need to know when to stop reading
-    movl $3, %ebx
-    imull %ebx
+    movl tripleMaxNumber, %eax                          #here we store the tripleMaxNumber in eax in order to use it for comparision
     
     cmpl index, %eax                                    #if 3 * maxNumber is smaller than index, then we have read all the variables
     jl callBacktracking                                 #and we should call the backtracking function
@@ -89,13 +148,22 @@ foundFixedNumber:                                       #this label treat the ca
     jmp prepareNextIndex
     
 prepareNextIndex:
-    incl index
-    jmp readArray
+    incl index                                          #here we increase the index by one unit
+    jmp readArray                                       #we prepare to read the next input
     
 callBacktracking:
+    pushl $1            
+    call backtracking                                   #here we call backtracking(1), because he have pushed 1
     
+    movl $4, %eax
+    movl $1, %ebx
+    movl $minusOneText, %ecx                            #here we show -1 and a newline if the backtracking program has finished
+    movl $3, %edx
+    int $0x80
+    
+    jmp finish
 
-finish:
+finish:                                                 #the label for finishing the program
     mov $1, %eax
     xor %ebx, %ebx
     int $0x80

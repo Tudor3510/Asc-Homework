@@ -7,7 +7,7 @@ int currPosNum, spaceBetween;
 
 int verifyGood(int pos){
     for (index =1; index <= maxNumber; index++)
-        lastNumPosition[index] = -35;
+        lastNumPosition[index] = -200;
 
     for (index =1; index <= pos; index++){
         currPosNum = array[index];
@@ -31,10 +31,10 @@ void backtracking(int pos){
     }
 
     if (fixedPoint[pos] == 1){
-        if (usedNum[array[pos]] >= 3)
-            return;
-
         if (verifyGood(pos) == 0)
+            return;
+        
+        if (usedNum[array[pos]] >= 3)
             return;
 
         usedNum[array[pos]] += 1;
