@@ -66,6 +66,7 @@ int main (){
         if (array[index] != 0)
             fixedPoint[index] = 1;
     }
+    backtracking(1);
 
     return 0;
 }
