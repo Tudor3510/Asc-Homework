@@ -7,6 +7,7 @@
     usedNum: .space 500
     
     index: .space 4
+    tripleMaxNumber: .space 4
     
     scanfIntFormat: .asciz "%d"
     toClearStack: .space 4                              #we will use toClearStack as a variable that will help us to clear the stack
@@ -17,10 +18,15 @@ verifyGood:
 backtracking:
     pushl %ebp
     mov %esp, %ebp
+    
+    
     movl 8(%ebp), %eax
     addl 12(%ebp), %eax
     movl 16(%ebp),%ebx
     movl %eax, 0(%ebx)
+    
+    
+    
     popl %ebp
     ret
     
@@ -40,6 +46,11 @@ main:
     call scanf                                          #here we read the maxLength that should be between the numbers
     popl toClearStack
     popl toClearStack
+    
+    movl maxNumber, %eax
+    movl $3, %ebx
+    imull %ebx
+    movl %eax, tripleMaxNumber                          #here we calculate the triple max number variable
     
     movl $1, index
     jmp readArray

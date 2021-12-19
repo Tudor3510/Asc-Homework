@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 int maxNumber, reqLength, array[100], fixedPoint[100], usedNum[100], lastNumPosition[100];
-int index, number, tripleMaxNumber;
+int index, tripleMaxNumber;
 int currPosNum, spaceBetween;
 
 int verifyGood(int pos){
@@ -15,6 +15,8 @@ int verifyGood(int pos){
 
         if (spaceBetween < reqLength)
             return 0;
+        
+        lastNumPosition[currPosNum] = index;
     }
     return 1;
 }
@@ -29,10 +31,12 @@ void backtracking(int pos){
     }
 
     if (fixedPoint[pos] == 1){
-        if (verifyGood(pos) == 0)
-            return;
         if (usedNum[array[pos]] >= 3)
             return;
+
+        if (verifyGood(pos) == 0)
+            return;
+
         usedNum[array[pos]] += 1;
 
         backtracking(pos + 1);
@@ -40,7 +44,7 @@ void backtracking(int pos){
         usedNum[array[pos]] -= 1;
     }else{
 
-        for (number=1; number <= maxNumber; number++){
+        for (int number=1; number <= maxNumber; number++){
             if (usedNum[number] < 3){
                 array[pos] = number;
                 if (verifyGood(pos) == 1){
@@ -67,6 +71,7 @@ int main (){
             fixedPoint[index] = 1;
     }
     backtracking(1);
+    printf("%d\n", -1);
 
     return 0;
 }
