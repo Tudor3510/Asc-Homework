@@ -34,9 +34,10 @@ completeLastNumPositionLoop:
     
     movl $lastNumPosition, %edi
     movl index, %ecx
-    movl $-200, (%edi, %ecx, 4)
-    
-    incl index
+    movl $-200, (%edi, %ecx, 4)                         #we put -200 in every position of the lastNumPosition array because we will need to have
+                                                        #a small value when we find the first occurrence
+                                                        
+    incl index                                          #here we increase index by one position
     jmp completeLastNumPositionLoop
     
 prepareVerifyGoodLoop:
