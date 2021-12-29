@@ -5,6 +5,8 @@ int maxNumber, reqLength, array[100], fixedPoint[100], usedNum[100], lastNumPosi
 int index, tripleMaxNumber;
 int currPosNum, spaceBetween;
 
+FILE *fp;
+
 int verifyGood(int pos){
     for (index =1; index <= maxNumber; index++)
         lastNumPosition[index] = -200;
@@ -23,6 +25,8 @@ int verifyGood(int pos){
 
 
 void backtracking(int pos){
+
+
     if (pos > tripleMaxNumber){
         for (index=1; index <= tripleMaxNumber; index++)
             printf("%d ", array[index]);
@@ -31,12 +35,12 @@ void backtracking(int pos){
     }
 
     if (fixedPoint[pos] == 1){
-        if (verifyGood(pos) == 0)
-            return;
-        
         if (usedNum[array[pos]] >= 3)
             return;
 
+        if (verifyGood(pos) == 0)
+            return;
+        
         usedNum[array[pos]] += 1;
 
         backtracking(pos + 1);
@@ -60,6 +64,9 @@ void backtracking(int pos){
 
 
 int main (){
+    fp = fopen("out.txt", "w");
+
+
     scanf("%d", &maxNumber);
     scanf("%d", &reqLength);
 
