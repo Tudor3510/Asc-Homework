@@ -92,18 +92,39 @@ verifyGoodReturnPositive:
 
 backtracking:
     pushl %ebp
-    mov %esp, %ebp
+    pushl %ebx
+    pushl %edi                                          #here we do a backup of our registers
+    movl %esp, %ebp
     
+    movl tripleMaxNumber, %ecx
+    cmpl %ecx, 16(%ebp)
+    jg printSolution                                    #if "pos" is bigger than tripleMaxNumber, we have found a solution
     
-    movl 8(%ebp), %eax
-    addl 12(%ebp), %eax
-    movl 16(%ebp),%ebx
-    movl %eax, 0(%ebx)
+    movl $fixedPoint, %edi
+    movl 16(%ebp), %ecx
+    movl (%edi, %ecx, 4), %ecx                          #here we get the value of fixedPoint[pos] in %ecx
     
+    cmpl %ecx, $1
+    je handleFixedPoint                                 #if we are at a fixed point we jump to handleFixedPoint
+
+    pushl $1                                            #the "number" variable
+    jmp completePositionLoop
     
+completePositionLoop:
     
+
+handleFixedPoint:
+
+
+returnBacktracking:
+    popl %edi
+    popl %ebx
     popl %ebp
+    
     ret
+
+printSolution:
+    jmp finish
     
 .globl main
 main:
