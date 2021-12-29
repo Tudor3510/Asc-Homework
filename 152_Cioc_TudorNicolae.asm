@@ -104,14 +104,33 @@ backtracking:
     movl 16(%ebp), %ecx
     movl (%edi, %ecx, 4), %ecx                          #here we get the value of fixedPoint[pos] in %ecx
     
-    cmpl %ecx, $1
+    movl $1, %ebx
+    cmpl %ecx, %ebx
     je handleFixedPoint                                 #if we are at a fixed point we jump to handleFixedPoint
 
     pushl $1                                            #the "number" variable
-    jmp completePositionLoop
+    jmp completePositionLoop                            #the backtracking loop
     
 completePositionLoop:
+    popl %ecx                                           #the "number" variable is now in %ecx. !!!!The %ecx should remain unchanged in the whole completePositionLoop
+    cmpl maxNumber, %ecx
+    jg returnBacktracking                               #if "number" is bigger than maxNumber, then we return from the backtracking
     
+    movl $usedNum, %edi
+    movl $3, %edx
+    cmpl %edx, (%edi, %ecx, 4)                          #if usedNum[number] < 3
+    jl secondConditionComplePositionLoop
+    
+    jmp prepareNextNumber
+    
+secondConditionComplePositionLoop:
+    #the %ecx should be the one from he completePositionLoop
+    
+    movl 16(%ebp), %ebx                                 #now the %ebx is holding the "pos" value
+    movl $array, %edi
+    movl %ecx, (%edi, %ebx, 4)                          #array[pos] = number
+    
+prepareNextNumber:
 
 handleFixedPoint:
 
