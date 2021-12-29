@@ -138,16 +138,23 @@ secondConditionComplePositionLoop:
     je callBacktrackingFromLoop
     
 callBacktrackingFromLoop:
-    popl %ecx                                           #the "number" variable is now in %ecx. !!!!The %ecx should remain unchanged in the whole callBacktrackingFromLoop
+    popl %ecx                                           #the "number" variable is now in %ecx
     movl $usedNum, %edi
     incl (%edi, %ecx, 4)                                #here we increase the usedNum[number] by one unit
     
-    pushl $ecx                                          #we put the "number" back on stack
+    pushl %ecx                                          #we put the "number" back on stack
     
     movl 16(%ebp), %ebx                                 #now the %ebx is holding the "pos" value
     incl %ebx
-    popl %ebx                                           #we increase the "pos" value and we put it back on stack
-    call backtracking                                   #then we call backtracking
+    pushl %ebx                                          #we increase the "pos" value and we put it back on stack
+    call backtracking                                   #then we call backtracking(pos)
+    popl toClearStack
+    
+    popl %ecx                                           #the "number" variable is now in %ecx
+    movl $usedNum, %edi
+    decl (%edi, %ecx, 4)                                #here we decrease the usedNum[number] by one unit
+    
+    jmp prepareNextNumber
     
     
 prepareNextNumber:
