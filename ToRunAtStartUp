@@ -1,7 +1,8 @@
 sudo pacman -Sy gcc make binutils qt5-base xclip gdb python2 && git config --global user.name "Tudor3510"
 sudo apt install build-essential gcc-multilib git gdb sasm python2 && git config --global user.name "Tudor3510"
 
+wget https://bootstrap.pypa.io/pip/2.7/get-pip.py && sudo python2 get-pip.py && pip2 install pwn && pip2 install pathlib2
+
 git config --global user.email "tudorcioc@gmail.com" && ssh-keygen
 cat ~/.ssh/id_rsa.pub
 
-wget https://bootstrap.pypa.io/pip/2.7/get-pip.py && sudo python2 get-pip.py && pip2 install pwn && pip2 install pathlib2
