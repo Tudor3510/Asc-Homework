@@ -119,16 +119,36 @@ completePositionLoop:
     movl $usedNum, %edi
     movl $3, %edx
     cmpl %edx, (%edi, %ecx, 4)                          #if usedNum[number] < 3
+    pushl %ecx
     jl secondConditionComplePositionLoop
     
     jmp prepareNextNumber
     
 secondConditionComplePositionLoop:
-    #the %ecx should be the one from he completePositionLoop
-    
     movl 16(%ebp), %ebx                                 #now the %ebx is holding the "pos" value
     movl $array, %edi
     movl %ecx, (%edi, %ebx, 4)                          #array[pos] = number
+    
+    pushl %ebx                                          #putting the "pos" on stack in order to use it in the verifyGood method
+    call verifyGood
+    popl toClearStack
+    
+    movl $1, %ebx
+    cmpl %eax, %ebx                                     #comparing the result of the function with 1
+    je callBacktrackingFromLoop
+    
+callBacktrackingFromLoop:
+    popl %ecx                                           #the "number" variable is now in %ecx. !!!!The %ecx should remain unchanged in the whole callBacktrackingFromLoop
+    movl $usedNum, %edi
+    incl (%edi, %ecx, 4)                                #here we increase the usedNum[number] by one unit
+    
+    pushl $ecx                                          #we put the "number" back on stack
+    
+    movl 16(%ebp), %ebx                                 #now the %ebx is holding the "pos" value
+    incl %ebx
+    popl %ebx                                           #we increase the "pos" value and we put it back on stack
+    call backtracking                                   #then we call backtracking
+    
     
 prepareNextNumber:
 
