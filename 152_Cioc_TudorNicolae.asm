@@ -20,10 +20,10 @@
 verifyGood:
     pushl %ebp
     pushl %ebx
-    pushl %edi
+    pushl %edi                                          #here we do a backup of our registers
     movl %esp, %ebp
     
-    movl $1, index
+    movl $1, index                                      #here we prepare for completing our numPosition array
     jmp completeLastNumPositionLoop
     
 completeLastNumPositionLoop:
@@ -46,13 +46,14 @@ prepareVerifyGoodLoop:
     
 verifyGoodLoop:
     movl index, %eax
-    cmpl 16(%ebp), %eax
+    cmpl 16(%ebp), %eax                                 #the argument "pos" is at %ebp - 16
     jl verifyGoodReturnPositive
 
     movl $array, %edi
     movl index, %ecx
     movl (%edi, %ecx, 4), %edx
     movl %edx, currPosNum                               #now currPosNum will have the number that is stored at the array[index]
+    
     
     movl index, %eax                                    #we will use %eax to calculate the space between
 
@@ -62,20 +63,32 @@ verifyGoodLoop:
     
     decl %eax                                           #here we decrease the %eax because we need to know the space between
     
+    
     movl %eax, spaceBetween
     cmpl reqLength, %eax
-    jl verifyGoodReturnNegative
+    jl verifyGoodReturnNegative                         #if space between is smaller than the required length, then it is not a good generation
     
-    movl index, %edx 
-    movl %edx, (%edi, %ecx, 4)
+    movl index, %edx                                    
+    movl %edx, (%edi, %ecx, 4)                          #here lastNumPosition[currPosNum] = index. !!! %edi and %ecx should not have been changed
     
-    incl index
-    jmp verifyGoodLoop
+    incl index                                          #here we increase the index by one unit
+    jmp verifyGoodLoop                                  #we start the loop again
 
 verifyGoodReturnNegative:
-
+    popl %edi
+    popl %ebx
+    popl %ebp
+    
+    movl $0, %eax
+    ret
 
 verifyGoodReturnPositive:
+    popl %edi
+    popl %ebx
+    popl %ebp
+    
+    movl $1, %eax
+    ret
 
 backtracking:
     pushl %ebp
@@ -96,6 +109,8 @@ backtracking:
 main:
     movl %esp, %ebp                                     #for correct debugging
     movl $index, %eax                                   #THIS SHOULD BE DELETED!!!!!!
+    pushl $1                                            #THIS SHOULD BE DELETED!!!!!!
+    popl toClearStack                                   #THIS SHOULD BE DELETED!!!!!!
     
     pushl $maxNumber
     pushl $scanfIntFormat
