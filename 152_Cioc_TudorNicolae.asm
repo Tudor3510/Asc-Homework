@@ -10,6 +10,7 @@
     tripleMaxNumber: .space 4
     
     scanfIntFormat: .asciz "%d"
+    printfIntFormat: .asciz "%d "
     minusOneText: .asciz "-1\n"
     
     currPosNum: .space 4
@@ -154,10 +155,17 @@ callBacktrackingFromLoop:
     movl $usedNum, %edi
     decl (%edi, %ecx, 4)                                #here we decrease the usedNum[number] by one unit
     
+    pushl %ecx                                          #we put the "number" back on stack
+    
     jmp prepareNextNumber
     
     
 prepareNextNumber:
+    popl %ecx
+    incl %ecx
+    pushl %ecx
+    
+    jmp completePositionLoop
 
 handleFixedPoint:
 
@@ -170,8 +178,28 @@ returnBacktracking:
     ret
 
 printSolution:
-    jmp finish
+    movl $1, index
+    jmp printSolutionLoop
     
+printSolutionLoop:
+    movl tripleMaxNumber, %eax
+    cmpl %eax, index
+    jg finish
+    
+    movl $array, %edi
+    movl index, %ecx
+    pushl (%edi, %ecx, 4)
+    pushl $printfIntFormat
+    call printf                                         #calling printf("%d ", array[index])
+    popl toClearStack
+    popl toClearStack
+    
+    incl index                                          #here we increase the index by one unit
+    jmp printSolutionLoop
+
+    
+
+
 .globl main
 main:
     movl %esp, %ebp                                     #for correct debugging
@@ -247,6 +275,10 @@ callBacktracking:
     jmp finish
 
 finish:                                                 #the label for finishing the program
+    pushl $0
+    call fflush                                         #here we call fflush(0)
+    popl toClearStack 
+
     mov $1, %eax
     xor %ebx, %ebx
     int $0x80
