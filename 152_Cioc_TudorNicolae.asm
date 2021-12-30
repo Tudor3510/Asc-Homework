@@ -136,7 +136,9 @@ secondConditionComplePositionLoop:
     
     movl $1, %ebx
     cmpl %eax, %ebx                                     #comparing the result of the function with 1
-    je callBacktrackingFromLoop
+    je callBacktrackingFromLoop                         #if the two conditions are met, then we should call again the backtracking procedure
+    
+    jmp prepareNextNumber                               #else we should get ready for the next iteration
     
 callBacktrackingFromLoop:
     popl %ecx                                           #the "number" variable is now in %ecx
@@ -161,21 +163,21 @@ callBacktrackingFromLoop:
     
     
 prepareNextNumber:
-    popl %ecx
-    incl %ecx
-    pushl %ecx
+    popl %ecx                                           #we get the number variable from the stack,
+    incl %ecx                                           #we increase it by one unit
+    pushl %ecx                                          #and we put it back on the stack
     
-    jmp completePositionLoop
+    jmp completePositionLoop                            #we jump to execute the loop again
 
 handleFixedPoint:
 
 
 returnBacktracking:
-    popl %edi
+    popl %edi                                           #here we restore the registers
     popl %ebx
     popl %ebp
     
-    ret
+    ret                                                 #here we return
 
 printSolution:
     movl $1, index
