@@ -48,7 +48,7 @@ prepareVerifyGoodLoop:
 verifyGoodLoop:
     movl index, %eax
     cmpl 16(%ebp), %eax                                 #the argument "pos" is at %ebp - 16
-    jl verifyGoodReturnPositive
+    jg verifyGoodReturnPositive
 
     movl $array, %edi
     movl index, %ecx
@@ -131,7 +131,7 @@ secondConditionComplePositionLoop:
     movl %ecx, (%edi, %ebx, 4)                          #array[pos] = number
     
     pushl %ebx                                          #putting the "pos" on stack in order to use it in the verifyGood method
-    call verifyGood
+    call verifyGood                                     #here we call verifyGood(pos)
     popl toClearStack
     
     movl $1, %ebx
@@ -170,7 +170,39 @@ prepareNextNumber:
     jmp completePositionLoop                            #we jump to execute the loop again
 
 handleFixedPoint:
-
+    movl 16(%ebp), %ecx                                 #we store the "pos" variable in the %ecx
+    movl $array, %edi
+    movl (%edi, %ecx, 4), %ebx                          #we store "array[pos]" in %ebx1. !!!! %ebx should not be changed in the handleFixedPoint label
+    
+    movl $usedNum, %edi
+    movl (%edi, %ebx, 4), %edx                          #we store "usedNum[array[pos]]" in %edx
+    
+    movl $3, %eax
+    cmpl %eax, %edx                                     #if "usedNum[array[pos]] >= 3" we return
+    jge returnBacktracking
+    
+    movl 16(%ebp), %ecx                                 #we store the "pos" variable in the %ecx
+    pushl %ecx
+    call verifyGood                                     #here we do verifyGood(pos)
+    popl toClearStack
+    
+    movl $0, %ecx
+    cmpl %ecx, %eax                                     #here we look at the result of the  verifyGood(which is stored in %eax)
+    je returnBacktracking                               #and we return from backtracking if the current generation is not good
+    
+    movl $usedNum, %edi
+    incl (%edi, %ebx, 4)                                #here we do "usedNum[array[pos]] += 1"
+    
+    movl 16(%ebp), %ecx                                 #we store the "pos" variable in the %ecx
+    incl %ecx
+    pushl %ecx
+    call backtracking                                   #here we do backtracking(pos + 1)
+    popl toClearStack
+    
+    movl $usedNum, %edi
+    decl (%edi, %ebx, 4)                                #here we do "usedNum[array[pos]] -= 1"
+    
+    jmp returnBacktracking                              #here we return
 
 returnBacktracking:
     popl %edi                                           #here we restore the registers
@@ -205,9 +237,6 @@ printSolutionLoop:
 .globl main
 main:
     movl %esp, %ebp                                     #for correct debugging
-    movl $index, %eax                                   #THIS SHOULD BE DELETED!!!!!!
-    pushl $1                                            #THIS SHOULD BE DELETED!!!!!!
-    popl toClearStack                                   #THIS SHOULD BE DELETED!!!!!!
     
     pushl $maxNumber
     pushl $scanfIntFormat
