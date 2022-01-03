@@ -11,4 +11,4 @@ https://1drv.ms/u/s!AknsGZ1wFRqviGSjL4-ucGrbA-Hw?e=tyify6
 
 
 To compile your app:
-as --32 ../152_Cioc_TudorNicolae.asm -o cerinta.o && gcc -m32 cerinta.o -o cerinta
+as --32 152_Cioc_TudorNicolae.asm -o cerinta.o && gcc -m32 cerinta.o -o cerinta
