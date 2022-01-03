@@ -11,7 +11,8 @@
     
     scanfIntFormat: .asciz "%d"
     printfIntFormat: .asciz "%d "
-    minusOneText: .asciz "-1\n"
+    minusOneText: .asciz "-1"
+    newlineText: .asciz "\n"
     
     currPosNum: .space 4
     spaceBetween: .space 4
@@ -300,12 +301,16 @@ callBacktracking:
     movl $4, %eax
     movl $1, %ebx
     movl $minusOneText, %ecx                            #here we show -1 and a newline if the backtracking program has finished
-    movl $3, %edx
+    movl $2, %edx
     int $0x80
     
     jmp finish
 
 finish:                                                 #the label for finishing the program
+    pushl $newlineText
+    call printf                                         #here we show the newLine
+    popl toClearStack
+
     pushl $0
     call fflush                                         #here we call fflush(0)
     popl toClearStack 
